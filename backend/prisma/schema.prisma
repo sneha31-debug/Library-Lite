@@ -1,69 +1,132 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mysql" 
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  posts     Post[]
-  reviews   Review[]
-  comments  Comment[]
-  createdAt DateTime  @default(now())
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  username        String         @unique
+  password        String
+  fullName        String?
+  bio             String?        @db.Text
+  profilePicture  String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  books           UserBook[]
+  ratings         Rating[]
+  comments        Comment[]
+  posts           Post[]
+  postLikes       PostLike[]
+  followers       Follow[]       @relation("UserFollowers")
+  following       Follow[]       @relation("UserFollowing")
+  @@map("users")
 }
 
 model Book {
-  id        Int      @id @default(autoincrement())
-  title     String
-  author    String
-  genre     String
-  reviews   Review[]
-  createdAt DateTime @default(now())
+  id              Int            @id @default(autoincrement())
+  googleId        String         @unique
+  title           String
+  authors         Json       
+  description     String?        @db.Text
+  thumbnail       String?
+  publishedDate   String?
+  pageCount       Int?
+  categories      Json          
+  language        String?
+  averageRating   Float          @default(0)
+  ratingCount     Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userBooks       UserBook[]
+  ratings         Rating[]
+  comments        Comment[]
+  @@map("books")
 }
 
-model Review {
-  id        Int       @id @default(autoincrement())
-  content   String
-  rating    Int
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  book      Book      @relation(fields: [bookId], references: [id])
-  bookId    Int
-  comments  Comment[]
-  createdAt DateTime  @default(now())
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  FINISHED
+  DNF
 }
 
-model Post {
-  id        Int       @id @default(autoincrement())
-  title     String
-  content   String
-  user      User      @relation(fields: [userId], references: [id])
-  userId    Int
-  comments  Comment[]
-  createdAt DateTime  @default(now())
+model UserBook {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  bookId          Int
+  status          ReadingStatus  @default(READING)
+  currentPage     Int?
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book            Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  @@unique([userId, bookId])
+  @@map("user_books")
+}
+
+model Rating {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  bookId          Int
+  rating          Int
+  review          String?        @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book            Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  @@unique([userId, bookId])
+  @@map("ratings")
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  post      Post?    @relation(fields: [postId], references: [id])
-  postId    Int?
-  review    Review?  @relation(fields: [reviewId], references: [id])
-  reviewId  Int?
-  createdAt DateTime @default(now())
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  bookId          Int
+  content         String         @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book            Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  @@map("comments")
+}
+
+model Post {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  content         String         @db.Text
+  image           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes           PostLike[]
+  @@map("posts")
+}
+
+model PostLike {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  postId          Int
+  createdAt       DateTime       @default(now())
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post            Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId, postId])
+  @@map("post_likes")
+}
+
+model Follow {
+  id              Int            @id @default(autoincrement())
+  followerId      Int
+  followingId     Int
+  createdAt       DateTime       @default(now())
+  follower        User           @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following       User           @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
