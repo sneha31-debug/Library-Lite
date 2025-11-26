@@ -40,5 +40,5 @@ Built using:
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/library-lite.git](https://github.com/sneha31-debug/Library-Lite.git
+git clone https://github.com/sneha31-debug/Library-Lite.git
 cd library-lite
