@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-
+const path = require('path');
 const { errorHandler } = require('./src/middlewares/errorHandler');
 const { auth } = require('./src/middlewares/auth');
 
@@ -16,6 +16,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/books', express.static(path.join(__dirname, 'public/books')));
 
 app.use('/api/auth', authRoutes);
 
