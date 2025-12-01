@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" 
+  provider = "sqlite" 
   url      = env("DATABASE_URL")
 }
 
@@ -13,7 +13,7 @@ model User {
   username        String         @unique
   password        String
   fullName        String?
-  bio             String?        @db.Text
+  bio             String?
   profilePicture  String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -29,17 +29,19 @@ model User {
 
 model Book {
   id              Int            @id @default(autoincrement())
-  googleId        String         @unique
+  googleId        String?        @unique
   title           String
-  authors         Json       
-  description     String?        @db.Text
+  authors         String       
+  description     String?
   thumbnail       String?
   publishedDate   String?
   pageCount       Int?
-  categories      Json          
+  categories      String          
   language        String?
   averageRating   Float          @default(0)
   ratingCount     Int            @default(0)
+  pdfUrl          String?
+  previewUrl      String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   userBooks       UserBook[]
@@ -48,18 +50,13 @@ model Book {
   @@map("books")
 }
 
-enum ReadingStatus {
-  WANT_TO_READ
-  READING
-  FINISHED
-  DNF
-}
+
 
 model UserBook {
   id              Int            @id @default(autoincrement())
   userId          Int
   bookId          Int
-  status          ReadingStatus  @default(READING)
+  status          String         @default("READING")
   currentPage     Int?
   startedAt       DateTime?
   finishedAt      DateTime?
@@ -76,7 +73,7 @@ model Rating {
   userId          Int
   bookId          Int
   rating          Int
-  review          String?        @db.Text
+  review          String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -89,7 +86,7 @@ model Comment {
   id              Int            @id @default(autoincrement())
   userId          Int
   bookId          Int
-  content         String         @db.Text
+  content         String
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -100,7 +97,7 @@ model Comment {
 model Post {
   id              Int            @id @default(autoincrement())
   userId          Int
-  content         String         @db.Text
+  content         String
   image           String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

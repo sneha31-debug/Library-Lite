@@ -7,6 +7,7 @@ const { errorHandler } = require('./src/middlewares/errorHandler');
 const { auth } = require('./src/middlewares/auth');
 
 const authRoutes = require('./src/auth/routes');
+const bookRoutes = require('./src/books/routes');
 const app = express();
 
 app.use(cors({
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use('/books', express.static(path.join(__dirname, 'public/books')));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Library-Lite API is running' });

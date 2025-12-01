@@ -6,21 +6,37 @@ const fs = require('fs');
 const getLibraryBooks = async (req, res) => {
   try {
     const { genre, search } = req.query;
-    
+
     let books;
-    
+
+    // Fetch from database instead of books.json
     if (search) {
-      books = await booksService.searchBooks(search);
+      books = await prisma.book.findMany({
+        where: {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { authors: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+            { categories: { contains: search, mode: 'insensitive' } }
+          ]
+        }
+      });
     } else if (genre) {
-      books = await booksService.getBooksByGenre(genre);
+      books = await prisma.book.findMany({
+        where: {
+          categories: { contains: genre, mode: 'insensitive' }
+        }
+      });
     } else {
-      books = await booksService.getAllBooks();
+      books = await prisma.book.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
     }
 
-    res.json({ 
+    res.json({
       success: true,
       count: books.length,
-      books 
+      books
     });
   } catch (error) {
     console.error('Get library books error:', error);
@@ -31,9 +47,9 @@ const getLibraryBooks = async (req, res) => {
 const getLibraryBookDetails = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const book = await booksService.getBookByIsbn(isbn);
-    
+
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
@@ -70,7 +86,7 @@ const getLibraryBookDetails = async (req, res) => {
       }
     }
 
-    res.json({ 
+    res.json({
       success: true,
       book: {
         ...book,
@@ -88,9 +104,9 @@ const getLibraryBookDetails = async (req, res) => {
 const streamPDF = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const book = await booksService.getBookByIsbn(isbn);
-    
+
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
@@ -103,11 +119,11 @@ const streamPDF = async (req, res) => {
     }
 
     const stat = fs.statSync(pdfPath);
-    
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-Disposition', `inline; filename="${book.title}.pdf"`);
-    
+    res.setHeader('Content-Disposition', `attachment; filename="${book.title}.pdf"`);
+
     const stream = fs.createReadStream(pdfPath);
     stream.pipe(res);
   } catch (error) {
@@ -116,38 +132,119 @@ const streamPDF = async (req, res) => {
   }
 };
 
+const streamPreview = async (req, res) => {
+  try {
+    const { isbn } = req.params;
+
+    const book = await booksService.getBookByIsbn(isbn);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    if (!book.previewUrl) {
+      return res.status(404).json({ error: 'Preview not available for this book' });
+    }
+
+    const previewFilename = path.basename(book.previewUrl);
+    const previewPath = path.join(__dirname, '../../public/books/previews', previewFilename);
+
+    if (!fs.existsSync(previewPath)) {
+      return res.status(404).json({ error: 'Preview file not found' });
+    }
+
+    const stat = fs.statSync(previewPath);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Disposition', `inline; filename="${book.title}-preview.pdf"`);
+
+    const stream = fs.createReadStream(previewPath);
+    stream.pipe(res);
+  } catch (error) {
+    console.error('Stream preview error:', error);
+    res.status(500).json({ error: 'Failed to stream preview' });
+  }
+};
+
+const uploadBook = async (req, res) => {
+  try {
+    const { title, authors, description, categories, language, publishedDate, pageCount } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'PDF file is required' });
+    }
+
+    if (!title || !authors) {
+      return res.status(400).json({ error: 'Title and authors are required' });
+    }
+
+    const pdfFilename = req.file.filename;
+    const pdfPath = path.join(__dirname, '../../public/books/pdfs', pdfFilename);
+    const previewFilename = `preview-${pdfFilename}`;
+    const previewPath = path.join(__dirname, '../../public/books/previews', previewFilename);
+
+    // Generate preview
+    const { generatePreview } = require('../utils/pdf');
+    await generatePreview(pdfPath, previewPath);
+
+    // Create book in database
+    const book = await prisma.book.create({
+      data: {
+        title,
+        authors,
+        description: description || null,
+        categories: categories || 'Uncategorized',
+        language: language || null,
+        publishedDate: publishedDate || null,
+        pageCount: pageCount ? parseInt(pageCount) : null,
+        pdfUrl: `/books/pdfs/${pdfFilename}`,
+        previewUrl: `/books/previews/${previewFilename}`
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Book uploaded successfully',
+      book
+    });
+  } catch (error) {
+    console.error('Upload book error:', error);
+    res.status(500).json({ error: 'Failed to upload book' });
+  }
+};
+
 const addToCollection = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const libraryBook = await booksService.getBookByIsbn(isbn);
-    
+
     if (!libraryBook) {
       return res.status(404).json({ error: 'Book not found in library' });
     }
 
     let book = await prisma.book.findFirst({
-      where: { isbn: isbn }
+      where: { googleId: isbn }
     });
 
     if (!book) {
       book = await prisma.book.create({
         data: {
           title: libraryBook.title,
-          author: libraryBook.author,
+          authors: libraryBook.author,
           description: libraryBook.description,
-          coverImage: libraryBook.coverImage,
-          isbn: libraryBook.isbn,
-          genre: libraryBook.genre,
-          userId: req.userId
+          thumbnail: libraryBook.coverImage,
+          googleId: libraryBook.isbn,
+          categories: libraryBook.genre
         }
       });
     }
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'Book added to your collection',
-      book 
+      book
     });
   } catch (error) {
     console.error('Add to collection error:', error);
@@ -165,25 +262,24 @@ const rateLibraryBook = async (req, res) => {
     }
 
     const libraryBook = await booksService.getBookByIsbn(isbn);
-    
+
     if (!libraryBook) {
       return res.status(404).json({ error: 'Book not found' });
     }
 
     let book = await prisma.book.findFirst({
-      where: { isbn: isbn }
+      where: { googleId: isbn }
     });
 
     if (!book) {
       book = await prisma.book.create({
         data: {
           title: libraryBook.title,
-          author: libraryBook.author,
+          authors: libraryBook.author,
           description: libraryBook.description,
-          coverImage: libraryBook.coverImage,
-          isbn: libraryBook.isbn,
-          genre: libraryBook.genre,
-          userId: req.userId
+          thumbnail: libraryBook.coverImage,
+          googleId: libraryBook.isbn,
+          categories: libraryBook.genre
         }
       });
     }
@@ -205,10 +301,10 @@ const rateLibraryBook = async (req, res) => {
       }
     });
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'Book rated successfully',
-      rating: bookRating 
+      rating: bookRating
     });
   } catch (error) {
     console.error('Rate library book error:', error);
@@ -219,7 +315,13 @@ const rateLibraryBook = async (req, res) => {
 const getUserCollection = async (req, res) => {
   try {
     const books = await prisma.book.findMany({
-      where: { userId: req.userId },
+      where: {
+        userBooks: {
+          some: {
+            userId: req.userId
+          }
+        }
+      },
       include: {
         ratings: {
           where: { userId: req.userId },
@@ -232,10 +334,10 @@ const getUserCollection = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.json({ 
+    res.json({
       success: true,
       count: books.length,
-      books 
+      books
     });
   } catch (error) {
     console.error('Get user collection error:', error);
@@ -247,25 +349,24 @@ const removeFromCollection = async (req, res) => {
   try {
     const { bookId } = req.params;
 
-    const book = await prisma.book.findUnique({
-      where: { id: bookId }
+    const userBook = await prisma.userBook.findFirst({
+      where: {
+        bookId: parseInt(bookId),
+        userId: req.userId
+      }
     });
 
-    if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+    if (!userBook) {
+      return res.status(404).json({ error: 'Book not found in your collection' });
     }
 
-    if (book.userId !== req.userId) {
-      return res.status(403).json({ error: 'Not authorized to remove this book' });
-    }
-
-    await prisma.book.delete({
-      where: { id: bookId }
+    await prisma.userBook.delete({
+      where: { id: userBook.id }
     });
 
-    res.json({ 
+    res.json({
       success: true,
-      message: 'Book removed from collection' 
+      message: 'Book removed from collection'
     });
   } catch (error) {
     console.error('Remove from collection error:', error);
@@ -277,6 +378,8 @@ module.exports = {
   getLibraryBooks,
   getLibraryBookDetails,
   streamPDF,
+  streamPreview,
+  uploadBook,
   addToCollection,
   rateLibraryBook,
   getUserCollection,

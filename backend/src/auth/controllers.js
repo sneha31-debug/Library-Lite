@@ -21,7 +21,7 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: existingUser.email === email ? 'Email already registered' : 'Username already taken'
       });
     }
@@ -128,9 +128,62 @@ const logout = async (req, res) => {
   }
 };
 
+const socialLogin = async (req, res) => {
+  try {
+    const { email, name, provider, photoUrl } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check if user exists
+    let user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    // If user doesn't exist, create them
+    if (!user) {
+      // Generate a random password for social users
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      // Generate a unique username from email or name
+      let username = name ? name.toLowerCase().replace(/\s+/g, '') : email.split('@')[0];
+      const usernameExists = await prisma.user.findUnique({ where: { username } });
+      if (usernameExists) {
+        username += Math.floor(Math.random() * 1000);
+      }
+
+      user = await prisma.user.create({
+        data: {
+          email,
+          username,
+          password: hashedPassword,
+          fullName: name || username,
+          profilePicture: photoUrl,
+          bio: `Joined via ${provider}`
+        }
+      });
+    }
+
+    const token = generateToken(user.id);
+    const { password: _, ...userWithoutPassword } = user;
+
+    res.json({
+      message: 'Social login successful',
+      user: userWithoutPassword,
+      token
+    });
+  } catch (error) {
+    console.error('Social login error:', error);
+    res.status(500).json({ error: 'Social login failed' });
+  }
+};
+
 module.exports = {
   register,
   login,
+  socialLogin,
   getCurrentUser,
   logout
 };

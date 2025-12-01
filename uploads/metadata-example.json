@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "example-book1.pdf",
+    "title": "The Great Gatsby",
+    "authors": "F. Scott Fitzgerald",
+    "description": "A classic American novel set in the Jazz Age",
+    "categories": "Fiction, Classic Literature",
+    "language": "English",
+    "publishedDate": "1925-04-10",
+    "pageCount": 180
+  },
+  {
+    "filename": "example-book2.pdf",
+    "title": "1984",
+    "authors": "George Orwell",
+    "description": "A dystopian social science fiction novel",
+    "categories": "Fiction, Dystopian, Science Fiction",
+    "language": "English",
+    "publishedDate": "1949-06-08",
+    "pageCount": 328
+  },
+  {
+    "filename": "example-book3.pdf",
+    "title": "To Kill a Mockingbird",
+    "authors": "Harper Lee",
+    "description": "A novel about racial injustice in the American South",
+    "categories": "Fiction, Classic Literature",
+    "language": "English",
+    "publishedDate": "1960-07-11",
+    "pageCount": 281
+  }
+]
