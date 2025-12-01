@@ -1,4 +1,4 @@
-const { prisma } = require('../db/config');
+const { prisma } = require('../../db/config');
 
 const getUserProfile = async (req, res) => {
     try {

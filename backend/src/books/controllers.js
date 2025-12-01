@@ -6,9 +6,9 @@ const fs = require('fs');
 const getLibraryBooks = async (req, res) => {
   try {
     const { genre, search } = req.query;
-    
+
     let books;
-    
+
     if (search) {
       books = await booksService.searchBooks(search);
     } else if (genre) {
@@ -17,10 +17,10 @@ const getLibraryBooks = async (req, res) => {
       books = await booksService.getAllBooks();
     }
 
-    res.json({ 
+    res.json({
       success: true,
       count: books.length,
-      books 
+      books
     });
   } catch (error) {
     console.error('Get library books error:', error);
@@ -31,9 +31,9 @@ const getLibraryBooks = async (req, res) => {
 const getLibraryBookDetails = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const book = await booksService.getBookByIsbn(isbn);
-    
+
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
@@ -70,7 +70,7 @@ const getLibraryBookDetails = async (req, res) => {
       }
     }
 
-    res.json({ 
+    res.json({
       success: true,
       book: {
         ...book,
@@ -88,9 +88,9 @@ const getLibraryBookDetails = async (req, res) => {
 const streamPDF = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const book = await booksService.getBookByIsbn(isbn);
-    
+
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
@@ -103,11 +103,11 @@ const streamPDF = async (req, res) => {
     }
 
     const stat = fs.statSync(pdfPath);
-    
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Length', stat.size);
     res.setHeader('Content-Disposition', `inline; filename="${book.title}.pdf"`);
-    
+
     const stream = fs.createReadStream(pdfPath);
     stream.pipe(res);
   } catch (error) {
@@ -119,9 +119,9 @@ const streamPDF = async (req, res) => {
 const addToCollection = async (req, res) => {
   try {
     const { isbn } = req.params;
-    
+
     const libraryBook = await booksService.getBookByIsbn(isbn);
-    
+
     if (!libraryBook) {
       return res.status(404).json({ error: 'Book not found in library' });
     }
@@ -144,10 +144,10 @@ const addToCollection = async (req, res) => {
       });
     }
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'Book added to your collection',
-      book 
+      book
     });
   } catch (error) {
     console.error('Add to collection error:', error);
@@ -165,7 +165,7 @@ const rateLibraryBook = async (req, res) => {
     }
 
     const libraryBook = await booksService.getBookByIsbn(isbn);
-    
+
     if (!libraryBook) {
       return res.status(404).json({ error: 'Book not found' });
     }
@@ -205,10 +205,10 @@ const rateLibraryBook = async (req, res) => {
       }
     });
 
-    res.json({ 
+    res.json({
       success: true,
       message: 'Book rated successfully',
-      rating: bookRating 
+      rating: bookRating
     });
   } catch (error) {
     console.error('Rate library book error:', error);
@@ -232,10 +232,10 @@ const getUserCollection = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.json({ 
+    res.json({
       success: true,
       count: books.length,
-      books 
+      books
     });
   } catch (error) {
     console.error('Get user collection error:', error);
@@ -263,9 +263,9 @@ const removeFromCollection = async (req, res) => {
       where: { id: bookId }
     });
 
-    res.json({ 
+    res.json({
       success: true,
-      message: 'Book removed from collection' 
+      message: 'Book removed from collection'
     });
   } catch (error) {
     console.error('Remove from collection error:', error);
