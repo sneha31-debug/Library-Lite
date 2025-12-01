@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
@@ -27,23 +28,30 @@ const Login = ({ onNavigate }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const { login } = useAuth();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            // TODO: Integrate with backend authentication API
-            console.log('Login attempt:', { email, password, rememberMe });
-            // Add your authentication logic here
+            const result = await login(email, password);
+            if (result.success) {
+                if (onNavigate) {
+                    onNavigate('home');
+                }
+            } else {
+                setErrors(prev => ({ ...prev, submit: result.error }));
+            }
         }
     };
 
     const handleSignupClick = () => {
-    if (onNavigate) {
-      onNavigate('signup');
-    } else {
-      console.warn('onNavigate prop not provided to Login component');
-    }
-  };
+        if (onNavigate) {
+            onNavigate('signup');
+        } else {
+            console.warn('onNavigate prop not provided to Login component');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#e8dcc3] flex items-center justify-center px-4 py-12">
@@ -97,6 +105,11 @@ const Login = ({ onNavigate }) => {
                         <p className="text-[#3d4f3d]">
                             Enter your credentials to access your account
                         </p>
+                        {errors.submit && (
+                            <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                                {errors.submit}
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">

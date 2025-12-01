@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { BookOpen, Mail, Lock, User, Eye, EyeOff, Check } from 'lucide-react';
 
 const Signup = ({ onNavigate }) => {
@@ -58,13 +59,26 @@ const Signup = ({ onNavigate }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const { register } = useAuth();
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            // TODO: Integrate with backend registration API
-            console.log('Signup attempt:', formData);
-            // Add your registration logic here
+            const result = await register({
+                email: formData.email,
+                username: formData.name.toLowerCase().replace(/\s+/g, ''),
+                fullName: formData.name,
+                password: formData.password
+            });
+
+            if (result.success) {
+                if (onNavigate) {
+                    onNavigate('home');
+                }
+            } else {
+                setErrors(prev => ({ ...prev, submit: result.error }));
+            }
         }
     };
 
@@ -114,6 +128,11 @@ const Signup = ({ onNavigate }) => {
                         <p className="text-[#3d4f3d]">
                             Join our community of book lovers today
                         </p>
+                        {errors.submit && (
+                            <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                                {errors.submit}
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">

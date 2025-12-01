@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { BookOpen, Users, Heart, Menu, X, Star } from 'lucide-react';
+import { BookOpen, Users, Heart, Menu, X, Star, LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const BookVerseWebsite = ({ onNavigate }) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setCurrentPage('home');
+  };
 
   const books = [
     {
@@ -360,10 +367,29 @@ const BookVerseWebsite = ({ onNavigate }) => {
               </button>
             </div>
 
-            <div className="hidden md:block">
-              <button onClick={() => onNavigate('login')} className="bg-[#e8e89a] text-[#1a1a1a] px-6 py-2 rounded-full font-semibold hover:bg-[#d4d47a] transition-colors">
-                Sign In
-              </button>
+            <div className="hidden md:flex items-center gap-4">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => onNavigate('profile')}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#3d4f3d] text-[#e8e89a] rounded-full hover:bg-[#2a3b2a] transition-colors"
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    <span className="font-semibold">{user.fullName || user.username}</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-6 py-2 border-2 border-[#3d4f3d] text-[#3d4f3d] rounded-full font-semibold hover:bg-[#3d4f3d] hover:text-[#e8e89a] transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => onNavigate('login')} className="bg-[#e8e89a] text-[#1a1a1a] px-6 py-2 rounded-full font-semibold hover:bg-[#d4d47a] transition-colors">
+                  Sign In
+                </button>
+              )}
             </div>
 
             <button
@@ -394,9 +420,28 @@ const BookVerseWebsite = ({ onNavigate }) => {
               >
                 Genres
               </button>
-              <button onClick={() => onNavigate('login')} className="block w-full text-left px-4 py-3 bg-[#e8e89a] text-[#1a1a1a] rounded-lg font-semibold">
-                Sign In
-              </button>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => { onNavigate('profile'); setMobileMenuOpen(false); }}
+                    className="block w-full text-left px-4 py-3 bg-[#3d4f3d] text-[#e8e89a] rounded-lg font-semibold flex items-center gap-2"
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    {user.fullName || user.username}
+                  </button>
+                  <button
+                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    className="block w-full text-left px-4 py-3 border-2 border-[#3d4f3d] text-[#3d4f3d] rounded-lg font-semibold flex items-center gap-2"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => onNavigate('login')} className="block w-full text-left px-4 py-3 bg-[#e8e89a] text-[#1a1a1a] rounded-lg font-semibold">
+                  Sign In
+                </button>
+              )}
             </div>
           )}
         </div>
