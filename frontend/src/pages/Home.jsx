@@ -143,7 +143,7 @@ const BookVerseWebsite = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.slice(0, 6).map(book => (
-              <div key={book.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
+              <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
                 <div className="relative h-64 overflow-hidden">
                   <img
                     src={book.image}
@@ -242,7 +242,7 @@ const BookVerseWebsite = ({ onNavigate }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {books.map(book => (
-            <div key={book.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
+            <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
               <div className="relative h-72 overflow-hidden">
                 <img
                   src={book.image}
