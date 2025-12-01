@@ -1,0 +1,42 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const { errorHandler } = require('./src/middlewares/errorHandler');
+const { auth } = require('./src/middlewares/auth');
+
+const authRoutes = require('./src/auth/routes');
+const booksRoutes = require('./src/books/routes');
+const usersRoutes = require('./src/users/routes');
+const postsRoutes = require('./src/posts/routes');
+
+const app = express();
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use('/books', express.static(path.join(__dirname, 'public/books')));
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/books', booksRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/posts', postsRoutes);
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Library-Lite API is running' });
+});
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = app;
