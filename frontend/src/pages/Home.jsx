@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, Users, Heart, Menu, X, Star } from 'lucide-react';
 
-const BookVerseWebsite = () => {
+const BookVerseWebsite = ({ onNavigate }) => {
   const [currentPage, setCurrentPage] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -110,8 +110,8 @@ const BookVerseWebsite = () => {
             </h1>
           </div>
           <div className="rounded-3xl overflow-hidden shadow-2xl">
-            <img 
-              src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&h=600&fit=crop" 
+            <img
+              src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&h=600&fit=crop"
               alt="Library"
               className="w-full h-full object-cover"
             />
@@ -122,7 +122,7 @@ const BookVerseWebsite = () => {
             Immerse yourself in a curated collection of timeless classics and contemporary masterpieces. Track your reading journey, connect with fellow book enthusiasts, and build your personal library.
           </p>
           <div className="flex gap-4 mt-8 justify-center md:justify-start">
-            <button 
+            <button
               onClick={() => setCurrentPage('books')}
               className="bg-[#e8e89a] text-[#1a1a1a] px-8 py-3 rounded-full font-semibold hover:bg-[#d4d47a] transition-colors"
             >
@@ -140,13 +140,13 @@ const BookVerseWebsite = () => {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-[#1a1a1a] text-center mb-4">Featured Books</h2>
           <p className="text-[#3d4f3d] text-center mb-12">Handpicked selections from our literary collection, perfect for your next reading adventure.</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.slice(0, 6).map(book => (
               <div key={book.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
                 <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={book.image} 
+                  <img
+                    src={book.image}
                     alt={book.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -171,7 +171,7 @@ const BookVerseWebsite = () => {
           </div>
 
           <div className="text-center mt-12">
-            <button 
+            <button
               onClick={() => setCurrentPage('books')}
               className="bg-[#3d4f3d] text-[#e8e89a] px-10 py-4 rounded-full font-semibold hover:bg-[#2a3b2a] transition-colors"
             >
@@ -186,7 +186,7 @@ const BookVerseWebsite = () => {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-[#e8dcc3] text-center mb-4">Join Our Reading Community</h2>
           <p className="text-[#e8dcc3] text-center mb-12">Connect with fellow book lovers, share reviews, and discover your next favorite read.</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
@@ -211,13 +211,13 @@ const BookVerseWebsite = () => {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">Explore by Genre</h1>
         <p className="text-[#3d4f3d] text-center mb-12 text-lg">Dive into carefully curated collections spanning every literary taste and preference.</p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {genres.map((genre, index) => (
             <div key={index} className="group cursor-pointer">
               <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
-                <img 
-                  src={genre.image} 
+                <img
+                  src={genre.image}
                   alt={genre.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -239,13 +239,13 @@ const BookVerseWebsite = () => {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">All Books</h1>
         <p className="text-[#3d4f3d] text-center mb-12 text-lg">Browse our complete collection of literary treasures.</p>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {books.map(book => (
             <div key={book.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
               <div className="relative h-72 overflow-hidden">
-                <img 
-                  src={book.image} 
+                <img
+                  src={book.image}
                   alt={book.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -287,7 +287,7 @@ const BookVerseWebsite = () => {
             Made with love for book enthusiasts
           </p>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-4">Explore</h4>
           <ul className="space-y-2 text-sm">
@@ -297,7 +297,7 @@ const BookVerseWebsite = () => {
             <li><a href="#" className="hover:text-[#e8e89a] transition-colors">Popular</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-4">Community</h4>
           <ul className="space-y-2 text-sm">
@@ -307,7 +307,7 @@ const BookVerseWebsite = () => {
             <li><a href="#" className="hover:text-[#e8e89a] transition-colors">Favorites</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-4">Support</h4>
           <ul className="space-y-2 text-sm">
@@ -318,7 +318,7 @@ const BookVerseWebsite = () => {
           </ul>
         </div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-[#3d4f3d] text-center text-sm">
         <p>© 2025 BookVerse. All rights reserved.</p>
       </div>
@@ -337,64 +337,64 @@ const BookVerseWebsite = () => {
               </div>
               <span className="text-2xl font-bold text-[#1a1a1a]">BookVerse</span>
             </div>
-            
+
             <div className="hidden md:flex items-center gap-8">
-              <button 
+              <button
                 onClick={() => setCurrentPage('home')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-colors ${currentPage === 'home' ? 'bg-[#3d4f3d] text-[#e8e89a]' : 'text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a]'}`}
               >
                 <BookOpen className="w-5 h-5" />
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => setCurrentPage('books')}
                 className={`px-4 py-2 rounded-full font-semibold transition-colors ${currentPage === 'books' ? 'bg-[#3d4f3d] text-[#e8e89a]' : 'text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a]'}`}
               >
                 Books
               </button>
-              <button 
+              <button
                 onClick={() => setCurrentPage('genres')}
                 className={`px-4 py-2 rounded-full font-semibold transition-colors ${currentPage === 'genres' ? 'bg-[#3d4f3d] text-[#e8e89a]' : 'text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a]'}`}
               >
                 Genres
               </button>
             </div>
-            
+
             <div className="hidden md:block">
-              <button className="bg-[#e8e89a] text-[#1a1a1a] px-6 py-2 rounded-full font-semibold hover:bg-[#d4d47a] transition-colors">
+              <button onClick={() => onNavigate('login')} className="bg-[#e8e89a] text-[#1a1a1a] px-6 py-2 rounded-full font-semibold hover:bg-[#d4d47a] transition-colors">
                 Sign In
               </button>
             </div>
-            
-            <button 
+
+            <button
               className="md:hidden text-[#3d4f3d]"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-          
+
           {mobileMenuOpen && (
             <div className="md:hidden py-4 space-y-2">
-              <button 
+              <button
                 onClick={() => { setCurrentPage('home'); setMobileMenuOpen(false); }}
                 className="block w-full text-left px-4 py-3 text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a] rounded-lg font-semibold transition-colors"
               >
                 Home
               </button>
-              <button 
+              <button
                 onClick={() => { setCurrentPage('books'); setMobileMenuOpen(false); }}
                 className="block w-full text-left px-4 py-3 text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a] rounded-lg font-semibold transition-colors"
               >
                 Books
               </button>
-              <button 
+              <button
                 onClick={() => { setCurrentPage('genres'); setMobileMenuOpen(false); }}
                 className="block w-full text-left px-4 py-3 text-[#3d4f3d] hover:bg-[#3d4f3d] hover:text-[#e8e89a] rounded-lg font-semibold transition-colors"
               >
                 Genres
               </button>
-              <button className="block w-full text-left px-4 py-3 bg-[#e8e89a] text-[#1a1a1a] rounded-lg font-semibold">
+              <button onClick={() => onNavigate('login')} className="block w-full text-left px-4 py-3 bg-[#e8e89a] text-[#1a1a1a] rounded-lg font-semibold">
                 Sign In
               </button>
             </div>
