@@ -38,8 +38,12 @@ const Login = ({ onNavigate }) => {
     };
 
     const handleSignupClick = () => {
-        onNavigate('signup');
-    };
+    if (onNavigate) {
+      onNavigate('signup');
+    } else {
+      console.warn('onNavigate prop not provided to Login component');
+    }
+  };
 
     return (
         <div className="min-h-screen bg-[#e8dcc3] flex items-center justify-center px-4 py-12">

@@ -69,7 +69,11 @@ const Signup = ({ onNavigate }) => {
     };
 
     const handleLoginClick = () => {
-        onNavigate('login');
+        if (onNavigate) {
+            onNavigate('login');
+        } else {
+            console.warn('onNavigate prop not provided to Signup component');
+        }
     };
 
     const passwordStrength = () => {
