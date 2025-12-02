@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Heart, Menu, X, Star, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 const BookVerseWebsite = () => {
   const navigate = useNavigate();
@@ -243,42 +244,74 @@ const BookVerseWebsite = () => {
     </div>
   );
 
-  const BooksPage = () => (
-    <div className="min-h-screen py-16 px-4 md:px-8 lg:px-16 bg-[#e8dcc3]">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">All Books</h1>
-        <p className="text-[#3d4f3d] text-center mb-12 text-lg">Browse our complete collection of literary treasures.</p>
+  const BooksPage = () => {
+    const [libraryBooks, setLibraryBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {books.map(book => (
-            <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
-              <div className="relative h-72 overflow-hidden">
-                <img
-                  src={book.image}
-                  alt={book.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 right-4 bg-[#e8e89a] text-[#1a1a1a] px-3 py-1 rounded-full text-sm font-semibold">
-                  {book.year}
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-[#3d4f3d] text-[#e8e89a] text-xs px-3 py-1 rounded-full">{book.genre}</span>
-                  <div className="flex items-center gap-1 ml-auto">
-                    <Star className="w-4 h-4 fill-[#e8e89a] text-[#e8e89a]" />
-                    <span className="text-sm font-semibold text-[#3d4f3d]">{book.rating}</span>
+    useEffect(() => {
+      const fetchBooks = async () => {
+        try {
+          const response = await api.get('/books/library');
+          setLibraryBooks(response.data.books || []);
+        } catch (error) {
+          console.error('Error fetching books:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchBooks();
+    }, []);
+
+    return (
+      <div className="min-h-screen py-16 px-4 md:px-8 lg:px-16 bg-[#e8dcc3]">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">All Books</h1>
+          <p className="text-[#3d4f3d] text-center mb-12 text-lg">Browse our complete collection of literary treasures.</p>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3d4f3d] mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {libraryBooks.map(book => (
+                <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group flex flex-col h-full">
+                  <div className="relative h-72 overflow-hidden">
+                    <img
+                      src={book.coverImage || book.image}
+                      alt={book.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#3d4f3d] text-[#e8e89a] text-xs px-3 py-1 rounded-full">{book.genre}</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-[#1a1a1a] mb-1 line-clamp-2">{book.title}</h3>
+                    <p className="text-[#3d4f3d] text-sm mb-4">by {book.author}</p>
+
+                    <div className="mt-auto pt-4 border-t border-[#3d4f3d]/10">
+                      {book.pdfUrl && (
+                        <a
+                          href={book.pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full text-center bg-[#3d4f3d] text-[#e8e89a] py-2 rounded-lg font-semibold hover:bg-[#2a3b2a] transition-colors"
+                        >
+                          Read Book
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{book.title}</h3>
-                <p className="text-[#3d4f3d] text-sm">by {book.author}</p>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const Footer = () => (
     <footer className="bg-[#2a3b2a] text-[#e8dcc3] py-12 px-4 md:px-8 lg:px-16">

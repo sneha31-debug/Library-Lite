@@ -1,0 +1,32 @@
+[
+    {
+        "id": "1",
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "description": "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan.",
+        "coverImage": "https://m.media-amazon.com/images/I/71FTb9X6wsL._AC_UF1000,1000_QL80_.jpg",
+        "isbn": "9780743273565",
+        "genre": "Classic",
+        "pdfUrl": "https://example.com/great-gatsby.pdf"
+    },
+    {
+        "id": "2",
+        "title": "To Kill a Mockingbird",
+        "author": "Harper Lee",
+        "description": "The unforgettable novel of a childhood in a sleepy Southern town and the crisis of conscience that rocked it.",
+        "coverImage": "https://m.media-amazon.com/images/I/81gepf1eMqL._AC_UF1000,1000_QL80_.jpg",
+        "isbn": "9780061120084",
+        "genre": "Classic",
+        "pdfUrl": "https://example.com/mockingbird.pdf"
+    },
+    {
+        "id": "3",
+        "title": "1984",
+        "author": "George Orwell",
+        "description": "Among the seminal texts of the 20th century, Nineteen Eighty-Four is a rare work that grows more haunting as its futuristic purgatory becomes more real.",
+        "coverImage": "https://m.media-amazon.com/images/I/71kxa1-0mfL._AC_UF1000,1000_QL80_.jpg",
+        "isbn": "9780451524935",
+        "genre": "Dystopian",
+        "pdfUrl": "https://example.com/1984.pdf"
+    }
+]
