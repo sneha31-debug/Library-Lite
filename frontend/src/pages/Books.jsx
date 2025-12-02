@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import BookCard from "../components/BookCard";
 import { booksData } from "../services/data"; // Static data for now
 
-const Books = () => {
+const Books = ({ onNavigate }) => {
   // 💡 Placeholder for future API integration
   const [books, setBooks] = useState(booksData);
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,9 @@ const Books = () => {
           {books.map((book) => (
             // NOTE: BookCard uses a slightly different structure than the original All Books page,
             // but the reusable component is better.
-            <BookCard key={book.id} book={book} />
+            <div key={book.id} onClick={() => onNavigate('book-detail', book.isbn || book.id)}>
+              <BookCard book={book} />
+            </div>
           ))}
         </div>
       </div>

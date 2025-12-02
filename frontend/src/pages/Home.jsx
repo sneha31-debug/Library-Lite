@@ -15,63 +15,69 @@ const BookVerseWebsite = ({ onNavigate }) => {
   const books = [
     {
       id: 1,
-      title: 'The Silent Patient',
-      author: 'Alex Michaelides',
-      genre: 'Thriller',
-      year: 2019,
+      title: 'The Digital Revolution',
+      author: 'Sarah Thompson',
+      genre: 'Technology',
+      year: 2023,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
-      description: 'A gripping psychological thriller about a woman who shoots her husband and then never speaks again.'
+      image: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?w=400',
+      description: 'An in-depth exploration of how digital transformation is reshaping our world.',
+      isbn: '978-1-234567-89-0'
     },
     {
       id: 2,
-      title: 'Circe',
-      author: 'Madeline Miller',
-      genre: 'Mythology',
-      year: 2018,
+      title: 'The Art of Mindfulness',
+      author: 'Maya Patel',
+      genre: 'Self-Help',
+      year: 2022,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop',
-      description: 'In the house of Helios, god of the sun and mightiest of the Titans, a daughter is born. But Circe is a strange child—not powerful, like her father, nor viciously alluring, like her...'
+      image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400',
+      description: 'A practical guide to incorporating mindfulness into daily life.',
+      isbn: '978-2-345678-90-1'
     },
     {
       id: 3,
-      title: 'Educated',
-      author: 'Tara Westover',
-      genre: 'Memoir',
-      year: 2018,
+      title: 'Introduction to Data Science',
+      author: 'Dr. James Chen',
+      genre: 'Computer Science',
+      year: 2023,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop',
-      description: 'An unforgettable memoir about a young girl who, kept out of school, leaves her survivalist family in the mountains of Idaho to pursue an education, and discovers the transformative...'
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400',
+      description: 'A comprehensive introduction to data science.',
+      isbn: '978-3-456789-01-2'
     },
     {
       id: 4,
-      title: '1984',
-      author: 'George Orwell',
-      genre: 'Science Fiction',
-      year: 1949,
+      title: 'The Psychology of Success',
+      author: 'Dr. Emily Rodriguez',
+      genre: 'Psychology',
+      year: 2022,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400&h=600&fit=crop',
-      description: 'A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.'
+      image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400',
+      description: 'Explore the mental frameworks and habits that lead to success.',
+      isbn: '978-4-567890-12-3'
     },
     {
       id: 5,
-      title: 'Pride and Prejudice',
-      author: 'Jane Austen',
-      genre: 'Classic Literature',
-      year: 1813,
+      title: 'Modern Web Development',
+      author: 'Alex Kumar',
+      genre: 'Programming',
+      year: 2023,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop',
-      description: 'A romantic novel of manners that follows the character development of Elizabeth Bennet.'
+      image: 'https://images.unsplash.com/photo-1593720213428-28a5b9e94613?w=400',
+      description: 'Master modern web development with React, Node.js, and cloud technologies.',
+      isbn: '978-5-678901-23-4'
     },
     {
       id: 6,
-      title: 'The Midnight Library',
-      author: 'Matt Haig',
-      genre: 'Literary Fiction',
-      year: 2020,
+      title: 'Climate Change',
+      author: 'Dr. Lisa Anderson',
+      genre: 'Science',
+      year: 2023,
       rating: 4.5,
-      image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=600&fit=crop',
-      description: 'Between life and death there is a library, and within that library, the shelves go on forever.'
+      image: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=400',
+      description: 'Understanding the science behind climate change.',
+      isbn: '978-6-789012-34-5'
     }
   ];
 
@@ -150,7 +156,11 @@ const BookVerseWebsite = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.slice(0, 6).map(book => (
-              <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
+              <div
+                key={book.id}
+                className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group cursor-pointer"
+                onClick={() => onNavigate('book-detail', book.isbn)}
+              >
                 <div className="relative h-64 overflow-hidden">
                   <img
                     src={book.image}
@@ -249,7 +259,11 @@ const BookVerseWebsite = ({ onNavigate }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {books.map(book => (
-            <div key={book.id} className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
+            <div
+              key={book.id}
+              className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group cursor-pointer"
+              onClick={() => onNavigate('book-detail', book.isbn)}
+            >
               <div className="relative h-72 overflow-hidden">
                 <img
                   src={book.image}
