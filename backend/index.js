@@ -10,6 +10,7 @@ const authRoutes = require('./src/auth/routes');
 const booksRoutes = require('./src/books/routes');
 const usersRoutes = require('./src/users/routes');
 const postsRoutes = require('./src/posts/routes');
+const commentsRoutes = require('./src/comments/routes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/posts', postsRoutes);
+app.use('/api/comments', commentsRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Library-Lite API is running' });

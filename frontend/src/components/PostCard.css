@@ -1,0 +1,143 @@
+.post-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.post-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-username {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.post-time {
+    font-size: 12px;
+    color: #666;
+}
+
+.post-delete-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.post-delete-btn:hover {
+    color: #ff3b5c;
+}
+
+.post-delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.post-content {
+    padding: 0 16px 16px;
+}
+
+.post-content p {
+    margin: 0 0 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #1a1a1a;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.post-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.post-actions {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.post-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.post-action-btn:hover {
+    background: #f5f5f5;
+}
+
+.heart-icon,
+.comment-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.like-btn.liked {
+    color: #ff3b5c;
+}
+
+.like-btn.liked .heart-icon {
+    animation: heartPulse 0.3s ease;
+}
+
+@keyframes heartPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.action-count {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.action-text {
+    font-size: 14px;
+}
