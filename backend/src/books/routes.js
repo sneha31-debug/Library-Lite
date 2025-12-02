@@ -6,15 +6,17 @@ const {
   addToCollection,
   rateLibraryBook,
   getUserCollection,
-  removeFromCollection
+  removeFromCollection,
+  getGenres
 } = require('./controllers');
 const { auth, optionalAuth } = require('../middlewares/auth');
 
 const router = express.Router();
 
+router.get('/genres', getGenres);
 router.get('/library', getLibraryBooks);
 router.get('/library/:isbn', optionalAuth, getLibraryBookDetails);
-router.get('/library/:isbn/pdf', streamPDF); 
+router.get('/library/:isbn/pdf', streamPDF);
 
 router.get('/collection', auth, getUserCollection);
 router.post('/library/:isbn/add', auth, addToCollection);

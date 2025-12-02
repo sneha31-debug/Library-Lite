@@ -10,7 +10,7 @@ const BookVerseWebsite = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
+  const _handleLogout = async () => {
     await logout();
     setCurrentPage('home');
   };
@@ -84,28 +84,7 @@ const BookVerseWebsite = () => {
     }
   ];
 
-  const genres = [
-    {
-      name: 'Mystery',
-      image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop',
-      description: 'Unravel perplexing puzzles, follow cunning detectives, and delve into thrilling whodunits. This genre keeps readers on the edge of their seats with suspense, intrigue, and unexpected twists.'
-    },
-    {
-      name: 'Historical Fiction',
-      image: 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=600&h=400&fit=crop',
-      description: 'Journey back in time to experience pivotal moments and everyday life in bygone eras. Blending factual events with fictional narratives, these stories bring history to vivid life.'
-    },
-    {
-      name: 'Science Fiction',
-      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop',
-      description: 'Venture into the future, explore distant galaxies, and ponder the impact of advanced technology. This genre challenges perceptions with speculative ideas, futuristic societies, and scientific possibilities.'
-    },
-    {
-      name: 'Fantasy',
-      image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=400&fit=crop',
-      description: 'Enter magical realms filled with mythical creatures, epic quests, and supernatural powers. Fantasy transports readers to imaginative worlds beyond reality.'
-    }
-  ];
+
 
   const stats = [
     { icon: BookOpen, value: '1,000+', label: 'Books Available' },
@@ -162,7 +141,7 @@ const BookVerseWebsite = () => {
               <div
                 key={book.id}
                 className="bg-[#e8dcc3] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group cursor-pointer"
-                onClick={() => onNavigate('book-detail', book.isbn)}
+                onClick={() => navigate(`/book/${book.isbn}`)}
               >
                 <div className="relative h-64 overflow-hidden">
                   <img
@@ -226,42 +205,118 @@ const BookVerseWebsite = () => {
     </div>
   );
 
-  const GenresPage = () => (
-    <div className="min-h-screen py-16 px-4 md:px-8 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">Explore by Genre</h1>
-        <p className="text-[#3d4f3d] text-center mb-12 text-lg">Dive into carefully curated collections spanning every literary taste and preference.</p>
+  // Function to get genre-specific images
+  const getGenreImage = (genreName) => {
+    const genreImageMap = {
+      'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop', // Circuit board/tech
+      'Self-Help': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=600&h=400&fit=crop', // Meditation/mindfulness
+      'Computer Science': 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&h=400&fit=crop', // Code on screen
+      'Psychology': 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&h=400&fit=crop', // Brain/psychology
+      'Programming': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop', // Programming code
+      'Science': 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=400&fit=crop', // Laboratory/science
+      'Business': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop', // Business meeting/office
+      'Philosophy': 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&h=400&fit=crop', // Ancient books/philosophy
+      'Writing': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=400&fit=crop', // Typewriter/writing
+      'Health': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop', // Healthy food/wellness
+      'Fantasy': 'https://images.unsplash.com/photo-1518895312237-a9e23508077d?w=600&h=400&fit=crop', // Magical/fantasy landscape
+      'Urban Fantasy': 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=400&fit=crop', // Dark city/urban night
+      'Crime / Thriller': 'https://images.unsplash.com/photo-1556139943-4bdca53adf1e?w=600&h=400&fit=crop', // Dark alley/crime scene
+      'Political Thriller': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=600&h=400&fit=crop', // Government building
+      'Contemporary Fiction': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop', // Modern library
+      'Classic Literature': 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=400&fit=crop', // Vintage books
+    };
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {genres.map((genre, index) => (
-            <div key={index} className="group cursor-pointer">
-              <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
-                <img
-                  src={genre.image}
-                  alt={genre.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/50 to-transparent opacity-80"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-2xl font-bold text-[#e8dcc3] mb-2">{genre.name}</h3>
-                  <p className="text-[#e8dcc3] text-sm">{genre.description}</p>
-                </div>
-              </div>
+    // Return genre-specific image or a default book-related image
+    return genreImageMap[genreName] || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600&h=400&fit=crop';
+  };
+
+  const GenresPage = () => {
+    const [genres, setGenres] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchGenres = async () => {
+        try {
+          const response = await api.get('/books/genres');
+          setGenres(response.data.genres || []);
+        } catch (error) {
+          console.error('Error fetching genres:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchGenres();
+    }, []);
+
+    const handleGenreClick = (genreName) => {
+      setCurrentPage('books');
+      // We'll pass the genre via a state update that BooksPage can read
+      window.history.pushState({ genre: genreName }, '', `/?genre=${genreName}`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    };
+
+    return (
+      <div className="min-h-screen py-16 px-4 md:px-8 lg:px-16">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">Explore by Genre</h1>
+          <p className="text-[#3d4f3d] text-center mb-12 text-lg">Dive into carefully curated collections spanning every literary taste and preference.</p>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3d4f3d] mx-auto"></div>
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {genres.map((genreName, index) => (
+                <div
+                  key={index}
+                  className="group cursor-pointer"
+                  onClick={() => handleGenreClick(genreName)}
+                >
+                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl">
+                    <img
+                      src={getGenreImage(genreName)}
+                      alt={genreName}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/50 to-transparent opacity-80"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-bold text-[#e8dcc3] mb-2">{genreName}</h3>
+                      <p className="text-[#e8dcc3] text-sm">Click to explore {genreName} books</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const BooksPage = () => {
     const [libraryBooks, setLibraryBooks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedGenre, setSelectedGenre] = useState(null);
 
     useEffect(() => {
       const fetchBooks = async () => {
+        setLoading(true);
         try {
-          const response = await api.get('/books/library');
+          // Check for genre in URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const genreParam = urlParams.get('genre');
+
+          let endpoint = '/books/library';
+          if (genreParam) {
+            endpoint += `?genre=${encodeURIComponent(genreParam)}`;
+            setSelectedGenre(genreParam);
+          } else {
+            setSelectedGenre(null);
+          }
+
+          const response = await api.get(endpoint);
           setLibraryBooks(response.data.books || []);
         } catch (error) {
           console.error('Error fetching books:', error);
@@ -271,17 +326,64 @@ const BookVerseWebsite = () => {
       };
 
       fetchBooks();
+
+      // Listen for popstate events (back/forward navigation)
+      const handlePopState = () => {
+        fetchBooks();
+      };
+      window.addEventListener('popstate', handlePopState);
+
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
     }, []);
+
+    const clearGenreFilter = () => {
+      setSelectedGenre(null);
+      window.history.pushState({}, '', '/');
+      setLoading(true);
+      api.get('/books/library')
+        .then(response => {
+          setLibraryBooks(response.data.books || []);
+        })
+        .catch(error => {
+          console.error('Error fetching books:', error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    };
 
     return (
       <div className="min-h-screen py-16 px-4 md:px-8 lg:px-16 bg-[#e8dcc3]">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">All Books</h1>
-          <p className="text-[#3d4f3d] text-center mb-12 text-lg">Browse our complete collection of literary treasures.</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#1a1a1a] text-center mb-4">
+            {selectedGenre ? `${selectedGenre} Books` : 'All Books'}
+          </h1>
+          <p className="text-[#3d4f3d] text-center mb-8 text-lg">
+            {selectedGenre
+              ? `Explore our collection of ${selectedGenre} books.`
+              : 'Browse our complete collection of literary treasures.'}
+          </p>
+
+          {selectedGenre && (
+            <div className="flex justify-center mb-8">
+              <button
+                onClick={clearGenreFilter}
+                className="bg-[#3d4f3d] text-[#e8e89a] px-6 py-2 rounded-full font-semibold hover:bg-[#2a3b2a] transition-colors flex items-center gap-2"
+              >
+                <span>×</span> Clear Filter
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3d4f3d] mx-auto"></div>
+            </div>
+          ) : libraryBooks.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-[#3d4f3d] text-lg">No books found{selectedGenre ? ` in ${selectedGenre} genre` : ''}.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
