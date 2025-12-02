@@ -42,6 +42,12 @@ class BooksService {
       book.genre.toLowerCase() === genre.toLowerCase()
     );
   }
+
+  async getUniqueGenres() {
+    const books = await this.loadBooksData();
+    const genres = [...new Set(books.map(book => book.genre))];
+    return genres.sort();
+  }
 }
 
 module.exports = new BooksService();

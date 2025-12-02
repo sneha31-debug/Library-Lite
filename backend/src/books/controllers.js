@@ -313,6 +313,20 @@ const removeFromCollection = async (req, res) => {
   }
 };
 
+const getGenres = async (req, res) => {
+  try {
+    const genres = await booksService.getUniqueGenres();
+    res.json({
+      success: true,
+      count: genres.length,
+      genres
+    });
+  } catch (error) {
+    console.error('Get genres error:', error);
+    res.status(500).json({ error: 'Failed to get genres' });
+  }
+};
+
 module.exports = {
   getLibraryBooks,
   getLibraryBookDetails,
@@ -320,5 +334,6 @@ module.exports = {
   addToCollection,
   rateLibraryBook,
   getUserCollection,
-  removeFromCollection
+  removeFromCollection,
+  getGenres
 };
