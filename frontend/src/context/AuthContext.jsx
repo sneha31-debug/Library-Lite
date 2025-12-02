@@ -27,19 +27,40 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
+        console.log('AuthContext: Starting login for', email);
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data;
+            console.log('AuthContext: Got response', response);
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
-            return { success: true };
+            // Check if response is successful
+            if (response.data && response.data.token && response.data.user) {
+                const { token, user } = response.data;
+
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
+                setUser(user);
+                console.log('AuthContext: Login SUCCESS');
+                return { success: true };
+            } else {
+                // Response doesn't have expected data
+                console.log('AuthContext: Response missing token/user');
+                return {
+                    success: false,
+                    error: 'Invalid response from server'
+                };
+            }
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('AuthContext: Login FAILED with error:', error);
+            console.log('AuthContext: Error response:', error.response);
+
+            // Make sure user is not set on error
+            setUser(null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
             return {
                 success: false,
-                error: error.response?.data?.error || 'Login failed'
+                error: error.response?.data?.error || 'Login failed. Please check your credentials.'
             };
         }
     };
@@ -75,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, Mail, Lock, User, Eye, EyeOff, Check } from 'lucide-react';
 
-const Signup = ({ onNavigate }) => {
+const Signup = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -73,9 +75,7 @@ const Signup = ({ onNavigate }) => {
             });
 
             if (result.success) {
-                if (onNavigate) {
-                    onNavigate('home');
-                }
+                navigate('/');
             } else {
                 setErrors(prev => ({ ...prev, submit: result.error }));
             }
@@ -83,11 +83,7 @@ const Signup = ({ onNavigate }) => {
     };
 
     const handleLoginClick = () => {
-        if (onNavigate) {
-            onNavigate('login');
-        } else {
-            console.warn('onNavigate prop not provided to Signup component');
-        }
+        navigate('/login');
     };
 
     const passwordStrength = () => {

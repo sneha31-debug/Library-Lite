@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, BookOpen, Calendar, User, FileText, X } from 'lucide-react';
 import api from '../services/api';
 
-const BookDetail = ({ isbn, onNavigate }) => {
+const BookDetail = () => {
+    const { isbn } = useParams();
+    const navigate = useNavigate();
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -36,7 +39,7 @@ const BookDetail = ({ isbn, onNavigate }) => {
     return (
         <div className="min-h-screen bg-[#e8dcc3] py-8 px-4 md:px-8 lg:px-16">
             <button
-                onClick={() => onNavigate('books')}
+                onClick={() => navigate('/')}
                 className="flex items-center gap-2 text-[#3d4f3d] font-semibold mb-8 hover:text-[#2a3b2a] transition-colors"
             >
                 <ArrowLeft className="w-5 h-5" />
