@@ -3,7 +3,7 @@ const path = require('path');
 
 class BooksService {
   constructor() {
-    this.booksDataPath = path.join(__dirname, '../../data/books.json');
+    this.booksDataPath = path.join(__dirname, '../data/books.json');
   }
   async loadBooksData() {
     try {
@@ -19,14 +19,17 @@ class BooksService {
   }
   async getBookByIsbn(isbn) {
     const books = await this.loadBooksData();
-    return books.find(book => book.isbn === isbn);
+    console.log(`[DEBUG] Loaded ${books.length} books from ${this.booksDataPath}`);
+    const book = books.find(book => book.isbn === isbn);
+    console.log(`[DEBUG] Searching for ISBN ${isbn}, found:`, book ? 'Yes' : 'No');
+    return book;
   }
 
   async searchBooks(query) {
     const books = await this.loadBooksData();
     const searchTerm = query.toLowerCase();
-    
-    return books.filter(book => 
+
+    return books.filter(book =>
       book.title.toLowerCase().includes(searchTerm) ||
       book.author.toLowerCase().includes(searchTerm) ||
       book.genre.toLowerCase().includes(searchTerm) ||
@@ -35,7 +38,7 @@ class BooksService {
   }
   async getBooksByGenre(genre) {
     const books = await this.loadBooksData();
-    return books.filter(book => 
+    return books.filter(book =>
       book.genre.toLowerCase() === genre.toLowerCase()
     );
   }

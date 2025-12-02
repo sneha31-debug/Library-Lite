@@ -31,8 +31,10 @@ const getLibraryBooks = async (req, res) => {
 const getLibraryBookDetails = async (req, res) => {
   try {
     const { isbn } = req.params;
+    console.log(`[DEBUG] getLibraryBookDetails called for ISBN: ${isbn}`);
 
     const book = await booksService.getBookByIsbn(isbn);
+    console.log(`[DEBUG] Book found in service:`, book ? 'Yes' : 'No');
 
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
@@ -42,38 +44,50 @@ const getLibraryBookDetails = async (req, res) => {
     let totalRatings = 0;
     let averageRating = 0;
 
-    if (req.userId) {
-      const rating = await prisma.rating.findFirst({
-        where: {
-          userId: req.userId,
-          book: {
-            isbn: isbn
+    try {
+      if (req.userId) {
+        const rating = await prisma.rating.findFirst({
+          where: {
+            userId: req.userId,
+            book: {
+              isbn: isbn
+            }
+          }
+        });
+        userRating = rating ? rating.rating : null;
+      }
+
+      const dbBook = await prisma.book.findFirst({
+        where: { isbn: isbn },
+        include: {
+          ratings: {
+            select: { rating: true }
           }
         }
       });
-      userRating = rating ? rating.rating : null;
-    }
 
-    const dbBook = await prisma.book.findFirst({
-      where: { isbn: isbn },
-      include: {
-        ratings: {
-          select: { rating: true }
+      if (dbBook) {
+        totalRatings = dbBook.ratings.length;
+        if (totalRatings > 0) {
+          averageRating = dbBook.ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings;
         }
       }
-    });
+    } catch (dbError) {
+      console.error('Database error in getLibraryBookDetails:', dbError.message);
+      // Continue without DB data
+    }
 
-    if (dbBook) {
-      totalRatings = dbBook.ratings.length;
-      if (totalRatings > 0) {
-        averageRating = dbBook.ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings;
-      }
+    // Handle pdfUrl: extract filename if it's a path
+    let pdfFilename = book.pdfUrl;
+    if (pdfFilename && pdfFilename.includes('/')) {
+      pdfFilename = path.basename(pdfFilename);
     }
 
     res.json({
       success: true,
       book: {
         ...book,
+        pdfUrl: pdfFilename, // Ensure frontend gets the filename or cleaned URL
         userRating,
         averageRating: averageRating.toFixed(1),
         totalRatings
@@ -91,25 +105,37 @@ const streamPDF = async (req, res) => {
 
     const book = await booksService.getBookByIsbn(isbn);
 
-    if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+    // Also check Prisma DB if not found in service or if service doesn't have pdfUrl
+    let pdfFilename = book ? book.pdfUrl : null;
+
+    try {
+      const dbBook = await prisma.book.findFirst({ where: { isbn } });
+      if (dbBook && dbBook.pdfUrl) pdfFilename = dbBook.pdfUrl;
+    } catch (dbError) {
+      console.log('DB lookup failed in streamPDF, using JSON data');
     }
 
-    const pdfFilename = path.basename(book.pdfUrl);
-    const pdfPath = path.join(__dirname, '../../public/books/pdfs', pdfFilename);
-
-    if (!fs.existsSync(pdfPath)) {
-      return res.status(404).json({ error: 'PDF file not found' });
+    if (!pdfFilename) {
+      return res.status(404).json({ error: 'PDF not available for this book' });
     }
 
-    const stat = fs.statSync(pdfPath);
+    // Clean up filename if it's a path
+    if (pdfFilename.includes('/')) {
+      pdfFilename = path.basename(pdfFilename);
+    }
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-Disposition', `inline; filename="${book.title}.pdf"`);
+    const githubService = require('./githubService');
 
-    const stream = fs.createReadStream(pdfPath);
-    stream.pipe(res);
+    try {
+      const stream = await githubService.fetchPDFStream(pdfFilename);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${pdfFilename}"`);
+      stream.pipe(res);
+    } catch (err) {
+      console.error('GitHub Stream Error:', err.message);
+      return res.status(404).json({ error: 'PDF file not found in repository' });
+    }
+
   } catch (error) {
     console.error('Stream PDF error:', error);
     res.status(500).json({ error: 'Failed to stream PDF' });
@@ -139,7 +165,8 @@ const addToCollection = async (req, res) => {
           coverImage: libraryBook.coverImage,
           isbn: libraryBook.isbn,
           genre: libraryBook.genre,
-          userId: req.userId
+          userId: req.userId,
+          pdfUrl: libraryBook.pdfUrl
         }
       });
     }
@@ -183,7 +210,8 @@ const rateLibraryBook = async (req, res) => {
           coverImage: libraryBook.coverImage,
           isbn: libraryBook.isbn,
           genre: libraryBook.genre,
-          userId: req.userId
+          userId: req.userId,
+          pdfUrl: libraryBook.pdfUrl
         }
       });
     }
