@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
-const Login = ({ onNavigate }) => {
+const Login = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -35,22 +37,20 @@ const Login = ({ onNavigate }) => {
 
         if (validateForm()) {
             const result = await login(email, password);
+            console.log('Login result:', result); // Debug log
+
             if (result.success) {
-                if (onNavigate) {
-                    onNavigate('home');
-                }
+                console.log('Login successful, navigating to home'); // Debug log
+                navigate('/');
             } else {
+                console.log('Login failed:', result.error); // Debug log
                 setErrors(prev => ({ ...prev, submit: result.error }));
             }
         }
     };
 
     const handleSignupClick = () => {
-        if (onNavigate) {
-            onNavigate('signup');
-        } else {
-            console.warn('onNavigate prop not provided to Login component');
-        }
+        navigate('/signup');
     };
 
     return (
@@ -106,8 +106,21 @@ const Login = ({ onNavigate }) => {
                             Enter your credentials to access your account
                         </p>
                         {errors.submit && (
-                            <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                                {errors.submit}
+                            <div className="mt-4 p-4 bg-red-100 border-2 border-red-400 text-red-700 rounded-lg">
+                                <p className="font-semibold mb-1">Login Failed</p>
+                                <p className="text-sm">{errors.submit}</p>
+                                {errors.submit.toLowerCase().includes('invalid') && (
+                                    <p className="text-sm mt-2">
+                                        Don't have an account?{' '}
+                                        <button
+                                            type="button"
+                                            onClick={handleSignupClick}
+                                            className="font-bold underline hover:text-red-800"
+                                        >
+                                            Sign up here
+                                        </button>
+                                    </p>
+                                )}
                             </div>
                         )}
                     </div>

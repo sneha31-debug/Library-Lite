@@ -219,7 +219,13 @@ const rateLibraryBook = async (req, res) => {
 const getUserCollection = async (req, res) => {
   try {
     const books = await prisma.book.findMany({
-      where: { userId: req.userId },
+      where: {
+        userBooks: {
+          some: {
+            userId: req.userId
+          }
+        }
+      },
       include: {
         ratings: {
           where: { userId: req.userId },

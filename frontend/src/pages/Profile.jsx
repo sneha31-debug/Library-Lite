@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { User, BookOpen, Heart, MessageCircle, Users, UserPlus, UserMinus, Plus, X } from 'lucide-react';
+import { User, BookOpen, Heart, MessageCircle, Users, UserPlus, UserMinus, Plus, X, LogOut } from 'lucide-react';
 
-const Profile = ({ onNavigate }) => {
-    const { user } = useAuth();
+const Profile = () => {
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('posts');
     const [userPosts, setUserPosts] = useState([]);
     const [bookCollection, setBookCollection] = useState([]);
@@ -14,39 +16,61 @@ const Profile = ({ onNavigate }) => {
     const [showCreatePost, setShowCreatePost] = useState(false);
     const [newPost, setNewPost] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     useEffect(() => {
         if (user) {
             fetchUserData();
+        } else {
+            // If user becomes null (logged out), redirect to home
+            navigate('/');
         }
     }, [user]);
 
     const fetchUserData = async () => {
         try {
             setLoading(true);
-            const [postsRes, booksRes, followersRes, followingRes] = await Promise.all([
-                api.get(`/posts/user/${user.id}`),
-                api.get('/books/collection'),
+
+            // Fetch posts
+            const postsRes = await api.get(`/posts/user/${user.id}`);
+            setUserPosts(postsRes.data.posts || []);
+
+            // Fetch book collection (handle error gracefully)
+            let booksData = [];
+            try {
+                const booksRes = await api.get('/books/collection');
+                booksData = booksRes.data.books || [];
+            } catch (bookError) {
+                console.warn('Could not fetch book collection:', bookError);
+                // Continue without books if there's an error
+            }
+            setBookCollection(booksData);
+
+            // Fetch followers and following
+            const [followersRes, followingRes] = await Promise.all([
                 api.get(`/users/${user.id}/followers`),
                 api.get(`/users/${user.id}/following`)
             ]);
 
-            setUserPosts(postsRes.data.posts || []);
-            setBookCollection(booksRes.data.books || []);
             setFollowers(followersRes.data.followers || []);
             setFollowing(followingRes.data.following || []);
 
             setStats({
                 posts: postsRes.data.posts?.length || 0,
-                books: booksRes.data.books?.length || 0,
+                books: booksData.length || 0,
                 followers: followersRes.data.followers?.length || 0,
-                following: followingRes.data.following?.length || 0
+                following: followersRes.data.following?.length || 0
             });
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
     };
 
     const handleCreatePost = async () => {
@@ -95,7 +119,7 @@ const Profile = ({ onNavigate }) => {
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-[#1a1a1a] mb-4">Please sign in to view your profile</h2>
                     <button
-                        onClick={() => onNavigate('login')}
+                        onClick={() => navigate('/login')}
                         className="bg-[#3d4f3d] text-[#e8e89a] px-6 py-3 rounded-full font-semibold hover:bg-[#2a3b2a] transition-colors"
                     >
                         Sign In
@@ -138,9 +162,47 @@ const Profile = ({ onNavigate }) => {
                                     <div className="text-sm text-[#5a5a5a]">Following</div>
                                 </div>
                             </div>
+
+                            {/* Logout Button */}
+                            <div className="mt-6">
+                                <button
+                                    onClick={() => setShowLogoutConfirm(true)}
+                                    className="flex items-center gap-2 px-6 py-2 border-2 border-red-500 text-red-500 rounded-full font-semibold hover:bg-red-500 hover:text-white transition-colors"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                    Logout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Logout Confirmation Dialog */}
+                {showLogoutConfirm && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+                            <h3 className="text-xl font-bold text-[#1a1a1a] mb-4">Confirm Logout</h3>
+                            <p className="text-[#5a5a5a] mb-6">Are you sure you want to logout?</p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowLogoutConfirm(false);
+                                        handleLogout();
+                                    }}
+                                    className="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition-colors"
+                                >
+                                    Yes, Logout
+                                </button>
+                                <button
+                                    onClick={() => setShowLogoutConfirm(false)}
+                                    className="flex-1 bg-gray-200 text-[#1a1a1a] px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Tabs */}
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
@@ -148,8 +210,8 @@ const Profile = ({ onNavigate }) => {
                         <button
                             onClick={() => setActiveTab('posts')}
                             className={`flex-1 px-6 py-4 font-semibold transition-colors ${activeTab === 'posts'
-                                    ? 'bg-[#3d4f3d] text-[#e8e89a]'
-                                    : 'text-[#3d4f3d] hover:bg-gray-50'
+                                ? 'bg-[#3d4f3d] text-[#e8e89a]'
+                                : 'text-[#3d4f3d] hover:bg-gray-50'
                                 }`}
                         >
                             Posts
@@ -157,8 +219,8 @@ const Profile = ({ onNavigate }) => {
                         <button
                             onClick={() => setActiveTab('books')}
                             className={`flex-1 px-6 py-4 font-semibold transition-colors ${activeTab === 'books'
-                                    ? 'bg-[#3d4f3d] text-[#e8e89a]'
-                                    : 'text-[#3d4f3d] hover:bg-gray-50'
+                                ? 'bg-[#3d4f3d] text-[#e8e89a]'
+                                : 'text-[#3d4f3d] hover:bg-gray-50'
                                 }`}
                         >
                             Book Collection
@@ -166,8 +228,8 @@ const Profile = ({ onNavigate }) => {
                         <button
                             onClick={() => setActiveTab('followers')}
                             className={`flex-1 px-6 py-4 font-semibold transition-colors ${activeTab === 'followers'
-                                    ? 'bg-[#3d4f3d] text-[#e8e89a]'
-                                    : 'text-[#3d4f3d] hover:bg-gray-50'
+                                ? 'bg-[#3d4f3d] text-[#e8e89a]'
+                                : 'text-[#3d4f3d] hover:bg-gray-50'
                                 }`}
                         >
                             Followers
@@ -175,8 +237,8 @@ const Profile = ({ onNavigate }) => {
                         <button
                             onClick={() => setActiveTab('following')}
                             className={`flex-1 px-6 py-4 font-semibold transition-colors ${activeTab === 'following'
-                                    ? 'bg-[#3d4f3d] text-[#e8e89a]'
-                                    : 'text-[#3d4f3d] hover:bg-gray-50'
+                                ? 'bg-[#3d4f3d] text-[#e8e89a]'
+                                : 'text-[#3d4f3d] hover:bg-gray-50'
                                 }`}
                         >
                             Following
@@ -248,8 +310,8 @@ const Profile = ({ onNavigate }) => {
                                                     <button
                                                         onClick={() => post.isLiked ? handleUnlikePost(post.id) : handleLikePost(post.id)}
                                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${post.isLiked
-                                                                ? 'bg-red-100 text-red-600'
-                                                                : 'bg-gray-100 text-[#5a5a5a] hover:bg-gray-200'
+                                                            ? 'bg-red-100 text-red-600'
+                                                            : 'bg-gray-100 text-[#5a5a5a] hover:bg-gray-200'
                                                             }`}
                                                     >
                                                         <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
@@ -276,7 +338,7 @@ const Profile = ({ onNavigate }) => {
                                     <div className="text-center py-8 text-[#5a5a5a]">
                                         <p className="mb-4">No books in your collection yet.</p>
                                         <button
-                                            onClick={() => onNavigate('home')}
+                                            onClick={() => navigate('/')}
                                             className="bg-[#3d4f3d] text-[#e8e89a] px-6 py-3 rounded-full font-semibold hover:bg-[#2a3b2a] transition-colors"
                                         >
                                             Browse Books

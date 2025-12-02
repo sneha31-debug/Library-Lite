@@ -29,17 +29,33 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setUser(user);
-            return { success: true };
+            // Check if response is successful
+            if (response.data && response.data.token && response.data.user) {
+                const { token, user } = response.data;
+
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
+                setUser(user);
+                return { success: true };
+            } else {
+                // Response doesn't have expected data
+                return {
+                    success: false,
+                    error: 'Invalid response from server'
+                };
+            }
         } catch (error) {
             console.error('Login error:', error);
+
+            // Make sure user is not set on error
+            setUser(null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
             return {
                 success: false,
-                error: error.response?.data?.error || 'Login failed'
+                error: error.response?.data?.error || 'Login failed. Please check your credentials.'
             };
         }
     };
