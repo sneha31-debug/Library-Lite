@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { User, BookOpen, Heart, MessageCircle, Users, UserPlus, UserMinus, Plus, X, LogOut } from 'lucide-react';
+import { User, BookOpen, Heart, MessageCircle, Users, UserPlus, UserMinus, Plus, X, LogOut, Trash2 } from 'lucide-react';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -110,6 +110,19 @@ const Profile = () => {
             ));
         } catch (error) {
             console.error('Error unliking post:', error);
+        }
+    };
+
+    const handleDeletePost = async (postId) => {
+        if (!window.confirm('Are you sure you want to delete this post?')) return;
+
+        try {
+            await api.delete(`/posts/${postId}`);
+            setUserPosts(userPosts.filter(post => post.id !== postId));
+            setStats(prev => ({ ...prev, posts: prev.posts - 1 }));
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            alert('Failed to delete post. Please try again.');
         }
     };
 
@@ -301,6 +314,13 @@ const Profile = () => {
                                                             {new Date(post.createdAt).toLocaleDateString()}
                                                         </div>
                                                     </div>
+                                                    <button
+                                                        onClick={() => handleDeletePost(post.id)}
+                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Delete post"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
                                                 </div>
                                                 <p className="text-[#1a1a1a] mb-3">{post.content}</p>
                                                 {post.image && (
