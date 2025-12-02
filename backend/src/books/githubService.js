@@ -2,9 +2,9 @@ const path = require('path');
 
 class GitHubPDFService {
   constructor() {
-    this.username = process.env.GITHUB_USERNAME;
-    this.repo = process.env.GITHUB_PDF_REPO;
-    this.branch = process.env.GITHUB_PDF_BRANCH || 'main';
+    this.username = "wiz-AR-d";
+    this.repo = "book-library-pdfs";
+    this.branch = "main";
     this.baseUrl = `https://raw.githubusercontent.com/${this.username}/${this.repo}/${this.branch}/pdfs`;
   }
 
@@ -20,7 +20,7 @@ class GitHubPDFService {
       .replace(/[^a-zA-Z0-9]/g, '-')
       .toLowerCase()
       .substring(0, 50); // Keep filename reasonable length
-    
+
     const timestamp = Date.now();
     return `${name}-${timestamp}${ext}`;
   }
