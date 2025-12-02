@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { User, BookOpen, Heart, MessageCircle, Users, UserPlus, UserMinus, Plus, X, LogOut } from 'lucide-react';
+import PostCard from '../components/PostCard';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -290,39 +291,16 @@ const Profile = () => {
                                 ) : (
                                     <div className="space-y-4">
                                         {userPosts.map(post => (
-                                            <div key={post.id} className="bg-white border-2 border-gray-100 rounded-xl p-4">
-                                                <div className="flex items-start gap-3 mb-3">
-                                                    <div className="w-10 h-10 bg-[#3d4f3d] rounded-full flex items-center justify-center">
-                                                        <User className="w-5 h-5 text-[#e8e89a]" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="font-semibold text-[#1a1a1a]">{user.fullName || user.username}</div>
-                                                        <div className="text-sm text-[#5a5a5a]">
-                                                            {new Date(post.createdAt).toLocaleDateString()}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p className="text-[#1a1a1a] mb-3">{post.content}</p>
-                                                {post.image && (
-                                                    <img src={post.image} alt="Post" className="rounded-lg mb-3 max-h-96 w-full object-cover" />
-                                                )}
-                                                <div className="flex gap-4">
-                                                    <button
-                                                        onClick={() => post.isLiked ? handleUnlikePost(post.id) : handleLikePost(post.id)}
-                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${post.isLiked
-                                                            ? 'bg-red-100 text-red-600'
-                                                            : 'bg-gray-100 text-[#5a5a5a] hover:bg-gray-200'
-                                                            }`}
-                                                    >
-                                                        <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                                                        {post._count?.likes || 0}
-                                                    </button>
-                                                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-[#5a5a5a] hover:bg-gray-200 transition-colors">
-                                                        <MessageCircle className="w-5 h-5" />
-                                                        Comment
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <PostCard
+                                                key={post.id}
+                                                post={post}
+                                                currentUserId={user?.id}
+                                                onDelete={(postId) => {
+                                                    setUserPosts(userPosts.filter(p => p.id !== postId));
+                                                    setStats(prev => ({ ...prev, posts: prev.posts - 1 }));
+                                                }}
+                                                onUpdate={fetchUserData}
+                                            />
                                         ))}
                                     </div>
                                 )}
