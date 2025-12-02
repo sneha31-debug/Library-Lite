@@ -98,6 +98,10 @@ const getUserPosts = async (req, res) => {
                         profilePicture: true
                     }
                 },
+                likes: {
+                    where: req.userId ? { userId: req.userId } : undefined,
+                    select: { userId: true }
+                },
                 _count: {
                     select: {
                         likes: true
@@ -106,7 +110,13 @@ const getUserPosts = async (req, res) => {
             }
         });
 
-        res.json({ posts });
+        const postsWithLikeStatus = posts.map(post => ({
+            ...post,
+            isLiked: post.likes.length > 0,
+            likes: undefined
+        }));
+
+        res.json({ posts: postsWithLikeStatus });
     } catch (error) {
         console.error('Get user posts error:', error);
         res.status(500).json({ error: 'Failed to get user posts' });

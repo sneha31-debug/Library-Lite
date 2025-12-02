@@ -44,13 +44,18 @@ const getLibraryBookDetails = async (req, res) => {
     let totalRatings = 0;
     let averageRating = 0;
 
+    // Note: Books from books.json are not in the database, so we skip DB queries
+    // If you want ratings, you'll need to add these books to the database first
+    /*
     try {
       if (req.userId) {
         const rating = await prisma.rating.findFirst({
           where: {
             userId: req.userId,
             book: {
-              isbn: isbn
+              is: {
+                googleId: isbn  // Note: Book model uses googleId, not isbn
+              }
             }
           }
         });
@@ -58,7 +63,7 @@ const getLibraryBookDetails = async (req, res) => {
       }
 
       const dbBook = await prisma.book.findFirst({
-        where: { isbn: isbn },
+        where: { googleId: isbn },  // Note: Book model uses googleId, not isbn
         include: {
           ratings: {
             select: { rating: true }
@@ -76,6 +81,7 @@ const getLibraryBookDetails = async (req, res) => {
       console.error('Database error in getLibraryBookDetails:', dbError.message);
       // Continue without DB data
     }
+    */
 
     // Handle pdfUrl: extract filename if it's a path
     let pdfFilename = book.pdfUrl;
