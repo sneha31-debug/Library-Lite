@@ -79,10 +79,10 @@ cd Library-Lite
 
 ```bash
 # Start MySQL container in detached mode
-docker-compose up -d
+docker compose up -d
 
 # Verify MySQL is running
-docker-compose ps
+docker compose ps
 ```
 
 ### 3️⃣ Install Dependencies
