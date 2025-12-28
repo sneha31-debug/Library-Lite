@@ -37,6 +37,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Library-Lite API is running' });
 });
 
+// Serve static files from the React app (production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;

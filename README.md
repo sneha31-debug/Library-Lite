@@ -15,6 +15,34 @@ Built using:
 - **Node.js + Express.js + Prisma** (Backend)
 - **MySQL 8.0 in Docker** (Database)
 
+**Unified Monorepo Structure** - Frontend and backend integrated for simplified development and deployment.
+
+---
+
+## 📁 Project Structure
+
+```
+library-lite/
+├── client/              # React frontend source
+│   ├── src/
+│   ├── public/
+│   └── index.html
+├── src/                 # Express backend source
+│   ├── auth/
+│   ├── books/
+│   ├── users/
+│   ├── posts/
+│   └── comments/
+├── prisma/              # Database schema and migrations
+│   ├── schema.prisma
+│   └── seed.js
+├── dist/                # Built frontend (generated)
+├── server.js            # Main server entry point
+├── package.json         # Unified dependencies
+├── docker-compose.yml   # MySQL container config
+└── .env                 # Environment variables
+```
+
 ---
 
 ## ✨ Features
@@ -25,6 +53,7 @@ Built using:
 - 🖥️ **Responsive UI** – Modern and mobile-friendly interface with Tailwind CSS.  
 - ⚙️ **Prisma ORM** – Efficient and type-safe database access.
 - 🐳 **Docker Support** – Containerized MySQL database for easy setup.
+- 📦 **Monorepo** – Unified structure for simplified development.
 
 ---
 
@@ -43,7 +72,7 @@ Built using:
 
 ```bash
 git clone https://github.com/sneha31-debug/Library-Lite.git
-cd library-lite
+cd Library-Lite
 ```
 
 ### 2️⃣ Start MySQL Database with Docker
@@ -54,103 +83,120 @@ docker-compose up -d
 
 # Verify MySQL is running
 docker-compose ps
-
-# View MySQL logs (optional)
-docker-compose logs -f mysql
 ```
 
-### 3️⃣ Setup Backend
+### 3️⃣ Install Dependencies
 
 ```bash
-cd backend
-
-# Install dependencies
+# Install all dependencies (frontend + backend)
 npm install
+```
 
-# Copy environment template and configure
+### 4️⃣ Setup Environment Variables
+
+```bash
+# Copy environment template
 cp .env.example .env
 
+# Edit .env and configure your settings
+```
+
+### 5️⃣ Setup Database
+
+```bash
 # Generate Prisma client
 npm run prisma:generate
 
 # Push database schema to MySQL
-npx prisma db push
+npm run db:push
 
 # Seed the database with initial data
 npm run prisma:seed
-
-# Start the backend server
-npm run dev
 ```
 
-The backend will run on `http://localhost:5000`
-
-### 4️⃣ Setup Frontend
+### 6️⃣ Run Development Server
 
 ```bash
-cd ../frontend
-
-# Install dependencies
-npm install
-
-# Start the development server
+# Start both frontend and backend concurrently
 npm run dev
 ```
 
-The frontend will run on `http://localhost:5173`
+The application will be available at:
+- **Frontend:** `http://localhost:5173` (Vite dev server)
+- **Backend API:** `http://localhost:5001/api`
+
+### 7️⃣ Build for Production
+
+```bash
+# Build frontend
+npm run build
+
+# Start production server (serves built frontend + API)
+NODE_ENV=production npm start
+```
+
+In production, everything runs on `http://localhost:5001`
 
 ---
 
-## 🐳 Docker Commands
+## 🛠️ Available Scripts
 
-### MySQL Container Management
+### Development
 
 ```bash
-# Start MySQL container
-npm run docker:up          # or: docker-compose up -d
+npm run dev              # Run both frontend and backend
+npm run dev:server       # Run backend only
+npm run dev:client       # Run frontend only
+```
 
-# Stop MySQL container
-npm run docker:down        # or: docker-compose down
+### Build & Production
 
-# Reset database (removes all data)
-npm run docker:reset       # or: docker-compose down -v && docker-compose up -d
+```bash
+npm run build            # Build frontend for production
+npm start                # Start production server
+npm run preview          # Preview production build
+```
 
-# View MySQL logs
-npm run docker:logs        # or: docker-compose logs -f mysql
+### Docker Commands
+
+```bash
+npm run docker:up        # Start MySQL container
+npm run docker:down      # Stop MySQL container
+npm run docker:reset     # Reset database (removes all data)
+npm run docker:logs      # View MySQL logs
 ```
 
 ### Database Management
 
 ```bash
-# Push schema changes to database
-npm run db:push            # or: npx prisma db push
-
-# Reset and reseed database
-npm run db:reset           # or: npx prisma migrate reset
-
-# Open Prisma Studio (GUI for database)
-npm run prisma:studio
+npm run db:push          # Push schema changes to database
+npm run db:reset         # Reset and reseed database
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:migrate   # Run database migrations
+npm run prisma:studio    # Open Prisma Studio (GUI)
+npm run prisma:seed      # Seed database with initial data
 ```
 
 ---
 
 ## 🔧 Environment Variables
 
-Create a `.env` file in the `backend` directory with the following:
+Create a `.env` file in the root directory:
 
 ```env
 # Database Configuration
 DATABASE_URL="mysql://library_user:library_password@localhost:3306/library_lite"
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_key_here
+JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+JWT_EXPIRE="7d"
 
 # Server Configuration
-PORT=5000
-NODE_ENV=development
+PORT=5001
+NODE_ENV="development"
 
-# CORS Configuration
-FRONTEND_URL=http://localhost:5173
+# CORS Configuration (Frontend URL)
+FRONTEND_URL="http://localhost:5173"
 ```
 
 > **Note:** The default MySQL credentials are defined in `docker-compose.yml`. Change them for production use.
@@ -171,6 +217,42 @@ The application uses Prisma ORM with the following models:
 
 ---
 
+## 🚀 Deployment
+
+### Production Build
+
+```bash
+# 1. Build frontend
+npm run build
+
+# 2. Set environment to production
+export NODE_ENV=production
+
+# 3. Start server
+npm start
+```
+
+The server will:
+- Serve the built React app from `dist/`
+- Handle API requests at `/api/*`
+- Serve static assets with proper caching
+- Handle client-side routing (SPA)
+
+### Deployment Platforms
+
+**Render / Railway / Heroku:**
+```yaml
+Build Command: npm install && npm run build
+Start Command: npm start
+```
+
+**Environment Variables:**
+- Set `DATABASE_URL` to your production MySQL URL
+- Set `NODE_ENV=production`
+- Set `JWT_SECRET` to a secure random string
+
+---
+
 ## 🛠️ Troubleshooting
 
 ### MySQL Connection Issues
@@ -184,7 +266,7 @@ If you encounter connection errors:
 
 2. **Check MySQL logs:**
    ```bash
-   docker-compose logs mysql
+   npm run docker:logs
    ```
 
 3. **Restart MySQL container:**
@@ -195,14 +277,14 @@ If you encounter connection errors:
 4. **Reset everything:**
    ```bash
    npm run docker:reset
-   cd backend && npx prisma db push
+   npm run db:push
    ```
 
 ### Port Already in Use
 
-If port 3306 is already in use:
+**If port 3306 is already in use:**
 
-1. **Stop existing MySQL service:**
+1. Stop existing MySQL service:
    ```bash
    # macOS
    brew services stop mysql
@@ -211,24 +293,70 @@ If port 3306 is already in use:
    sudo systemctl stop mysql
    ```
 
-2. **Or change the port in docker-compose.yml:**
+2. Or change the port in `docker-compose.yml`:
    ```yaml
    ports:
      - "3307:3306"  # Use port 3307 instead
    ```
    Then update `DATABASE_URL` in `.env` to use port 3307.
 
+**If port 5001 is already in use:**
+
+Change `PORT` in `.env` to a different port (e.g., `5002`).
+
+### Build Issues
+
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules client/node_modules
+npm install
+
+# Clear build cache
+rm -rf dist
+npm run build
+```
+
 ---
 
-## 📝 Migration from SQLite
+## 📝 API Endpoints
 
-If you're migrating from an older version that used SQLite, see [DATABASE_MIGRATION.md](./DATABASE_MIGRATION.md) for detailed instructions.
+All API endpoints are prefixed with `/api`:
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+- `GET /api/auth/me` - Get current user
+
+### Books
+- `GET /api/books` - Get all books
+- `GET /api/books/:id` - Get book by ID
+- `POST /api/books` - Add new book
+
+### Users
+- `GET /api/users/:id` - Get user profile
+- `PUT /api/users/:id` - Update user profile
+
+### Posts
+- `GET /api/posts` - Get all posts
+- `POST /api/posts` - Create new post
+- `POST /api/posts/:id/like` - Like/unlike post
+
+### Comments
+- `GET /api/comments/:bookId` - Get comments for a book
+- `POST /api/comments` - Add new comment
 
 ---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
@@ -241,3 +369,13 @@ This project is licensed under the ISC License.
 ## 👥 Authors
 
 Created with ❤️ by the Library Lite team
+
+---
+
+## 📚 Additional Resources
+
+- [React Documentation](https://react.dev/)
+- [Express.js Guide](https://expressjs.com/)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Vite Guide](https://vite.dev/)
+- [Docker Documentation](https://docs.docker.com/)
