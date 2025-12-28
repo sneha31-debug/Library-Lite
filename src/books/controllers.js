@@ -1,4 +1,4 @@
-const { prisma } = require('../../db/config');
+const { prisma } = require('../db/config');
 const booksService = require('./services');
 const path = require('path');
 const fs = require('fs');
