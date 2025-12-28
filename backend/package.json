@@ -6,6 +6,12 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "docker:up": "cd .. && docker-compose up -d",
+    "docker:down": "cd .. && docker-compose down",
+    "docker:reset": "cd .. && docker-compose down -v && docker-compose up -d",
+    "docker:logs": "cd .. && docker-compose logs -f mysql",
+    "db:push": "prisma db push",
+    "db:reset": "prisma migrate reset",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",

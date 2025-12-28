@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" 
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,12 +32,12 @@ model Book {
   id              Int            @id @default(autoincrement())
   googleId        String         @unique
   title           String
-  authors         Json       
+  authors         String
   description     String?        @db.Text
   thumbnail       String?
   publishedDate   String?
   pageCount       Int?
-  categories      Json          
+  categories      String          
   language        String?
   averageRating   Float          @default(0)
   ratingCount     Int            @default(0)
@@ -50,18 +50,11 @@ model Book {
   @@map("books")
 }
 
-enum ReadingStatus {
-  WANT_TO_READ
-  READING
-  FINISHED
-  DNF
-}
-
 model UserBook {
   id              Int            @id @default(autoincrement())
   userId          Int
   bookId          Int
-  status          ReadingStatus  @default(READING)
+  status          String  @default("READING")
   currentPage     Int?
   startedAt       DateTime?
   finishedAt      DateTime?
